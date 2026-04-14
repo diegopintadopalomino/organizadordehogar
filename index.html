@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f4f3;color:#1a2e2a;min-height:100vh;padding:1.25rem}
+h1{font-size:22px;font-weight:700;color:#0d2b24;margin-bottom:4px}
+.subtitle{font-size:13px;color:#6b8c85;margin-bottom:1.25rem}
+
+/* Global progress */
+.global-card{background:#fff;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;border:1px solid #ddeae6}
+.global-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.global-label{font-size:13px;font-weight:600;color:#0d2b24}
+.global-pct{font-size:13px;font-weight:700;color:#E8671A}
+.bar-track{background:#e4eeeb;border-radius:99px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#1D6B52,#27ae80);transition:width 0.4s ease}
+.global-sub{font-size:12px;color:#6b8c85;margin-top:6px}
+
+/* Map grid */
+.section-title{font-size:12px;font-weight:600;color:#6b8c85;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.room{background:#fff;border:1.5px solid #ddeae6;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.room:hover{border-color:#27ae80}
+.room.active{border-color:#1D6B52;box-shadow:0 0 0 3px rgba(29,107,82,0.12)}
+.room.done{border-color:#27ae80;background:#f0faf5}
+.room-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.room-name{font-size:13px;font-weight:600;color:#0d2b24}
+.room-emoji{font-size:16px}
+.room-pct{font-size:11px;font-weight:700;color:#E8671A}
+.room-bar-track{background:#e4eeeb;border-radius:99px;height:5px;overflow:hidden;margin-bottom:4px}
+.room-bar-fill{height:100%;border-radius:99px;background:#1D6B52;transition:width 0.4s ease}
+.room-sub{font-size:11px;color:#6b8c85}
+.room-wide{grid-column:span 2}
+.badge-done{position:absolute;top:8px;right:8px;background:#1D6B52;color:#fff;font-size:10px;font-weight:600;border-radius:99px;padding:2px 7px}
+
+/* Checklist */
+.checklist-card{background:#fff;border-radius:14px;padding:1rem 1.25rem;border:1px solid #ddeae6}
+.checklist-head{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.room-icon-badge{width:34px;height:34px;border-radius:10px;background:#e4eeeb;display:flex;align-items:center;justify-content:center;font-size:16px}
+.checklist-title{font-size:15px;font-weight:700;color:#0d2b24}
+.checklist-sub{font-size:12px;color:#6b8c85}
+.task-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f4f3}
+.task-row:last-child{border-bottom:none}
+.task-row input[type=checkbox]{width:17px;height:17px;accent-color:#1D6B52;cursor:pointer;flex-shrink:0}
+.task-label{font-size:14px;color:#1a2e2a;cursor:pointer;flex:1}
+.task-label.done{text-decoration:line-through;color:#9bb8b0}
+.add-task{display:flex;gap:8px;margin-top:0.85rem}
+.add-task input{flex:1;font-size:13px;padding:8px 12px;border:1.5px solid #ddeae6;border-radius:10px;outline:none;background:#f8fbfa;color:#1a2e2a}
+.add-task input:focus{border-color:#1D6B52}
+.add-task button{font-size:13px;font-weight:600;padding:8px 16px;border:none;border-radius:10px;background:#E8671A;color:#fff;cursor:pointer}
+.add-task button:hover{background:#cf5a14}
+.empty{font-size:13px;color:#9bb8b0;padding:8px 0;text-align:center}
+.placeholder{text-align:center;padding:2rem 0;color:#9bb8b0;font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>Mi casa</h1>
+<p class="subtitle">Progreso de limpieza y orden</p>
+
+<div class="global-card">
+  <div class="global-top">
+    <span class="global-label">Progreso general</span>
+    <span class="global-pct" id="gpct">0%</span>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="gbar" style="width:0%"></div></div>
+  <p class="global-sub" id="gsub">0 de 0 tareas completadas</p>
+</div>
+
+<p class="section-title">Ambientes</p>
+<div class="map-grid">
+  <div class="room room-wide" data-room="sala" onclick="selectRoom('sala')">
+    <div class="room-top"><span class="room-name">Sala</span><span class="room-emoji">🛋</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-sala" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-sala">0/0 tareas</div>
+  </div>
+  <div class="room" data-room="escritorio" onclick="selectRoom('escritorio')">
+    <div class="room-top"><span class="room-name">Escritorio</span><span class="room-emoji">💻</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-escritorio" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-escritorio">0/0 tareas</div>
+  </div>
+  <div class="room" data-room="cocina" onclick="selectRoom('cocina')">
+    <div class="room-top"><span class="room-name">Cocina</span><span class="room-emoji">🍳</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-cocina" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-cocina">0/0 tareas</div>
+  </div>
+  <div class="room" data-room="bano-visitas" onclick="selectRoom('bano-visitas')">
+    <div class="room-top"><span class="room-name">Baño visitas</span><span class="room-emoji">🚿</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-bano-visitas" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-bano-visitas">0/0 tareas</div>
+  </div>
+  <div class="room" data-room="cuarto1" onclick="selectRoom('cuarto1')">
+    <div class="room-top"><span class="room-name">Cuarto 1</span><span class="room-emoji">🛏</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-cuarto1" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-cuarto1">0/0 tareas</div>
+  </div>
+  <div class="room" data-room="cuarto2" onclick="selectRoom('cuarto2')">
+    <div class="room-top"><span class="room-name">Cuarto 2</span><span class="room-emoji">🛏</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-cuarto2" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-cuarto2">0/0 tareas</div>
+  </div>
+  <div class="room room-wide" data-room="bano-interno" onclick="selectRoom('bano-interno')">
+    <div class="room-top"><span class="room-name">Baño interno</span><span class="room-emoji">🛁</span></div>
+    <div class="room-bar-track"><div class="room-bar-fill" id="rbar-bano-interno" style="width:0%"></div></div>
+    <div class="room-sub" id="sub-bano-interno">0/0 tareas</div>
+  </div>
+</div>
+
+<div class="checklist-card">
+  <div class="checklist-head">
+    <div class="room-icon-badge" id="c-icon">🏠</div>
+    <div>
+      <div class="checklist-title" id="c-title">Selecciona un ambiente</div>
+      <div class="checklist-sub" id="c-sub">Toca una tarjeta arriba</div>
+    </div>
+  </div>
+  <div id="tasks-list"><p class="placeholder">Selecciona un ambiente para ver sus tareas.</p></div>
+  <div class="add-task" id="add-form" style="display:none">
+    <input type="text" id="new-task" placeholder="Nueva tarea..." />
+    <button onclick="addTask()">+ Agregar</button>
+  </div>
+</div>
+
+<script>
+const defaults={
+  sala:["Ordenar cojines","Limpiar mesa de centro","Barrer el piso","Quitar polvo de estantes"],
+  escritorio:["Organizar cables","Limpiar monitor","Ordenar papeles","Vaciar papelera"],
+  cocina:["Lavar platos","Limpiar mesada","Ordenar alacena","Limpiar cocina"],
+  "bano-visitas":["Limpiar inodoro","Limpiar lavamanos","Cambiar toallas","Reponer papel"],
+  cuarto1:["Tender cama","Ordenar ropa","Limpiar piso","Limpiar muebles"],
+  cuarto2:["Tender cama","Ordenar ropa","Limpiar piso","Limpiar muebles"],
+  "bano-interno":["Limpiar ducha","Limpiar inodoro","Limpiar lavamanos","Reponer papel"]
+};
+const names={sala:"Sala",escritorio:"Escritorio",cocina:"Cocina","bano-visitas":"Baño de visitas",cuarto1:"Cuarto 1",cuarto2:"Cuarto 2","bano-interno":"Baño interno"};
+const icons={sala:"🛋",escritorio:"💻",cocina:"🍳","bano-visitas":"🚿",cuarto1:"🛏",cuarto2:"🛏","bano-interno":"🛁"};
+let state={};
+Object.keys(defaults).forEach(r=>{state[r]=defaults[r].map(t=>({label:t,done:false}))});
+let active=null;
+
+function selectRoom(r){
+  active=r;
+  document.querySelectorAll('.room').forEach(el=>el.classList.remove('active'));
+  document.querySelector('[data-room="'+r+'"]').classList.add('active');
+  document.getElementById('c-title').textContent=names[r];
+  document.getElementById('c-icon').textContent=icons[r];
+  document.getElementById('add-form').style.display='flex';
+  renderTasks();
+}
+
+function renderTasks(){
+  if(!active)return;
+  const tasks=state[active];
+  const list=document.getElementById('tasks-list');
+  const done=tasks.filter(t=>t.done).length;
+  document.getElementById('c-sub').textContent=done+' de '+tasks.length+' completadas';
+  if(!tasks.length){list.innerHTML='<p class="empty">Sin tareas. Agrega una abajo.</p>';updateAll();return;}
+  list.innerHTML=tasks.map((t,i)=>`<div class="task-row"><input type="checkbox" id="t${i}" ${t.done?'checked':''} onchange="toggle(${i})"><label class="task-label${t.done?' done':''}" for="t${i}">${t.label}</label></div>`).join('');
+  updateAll();
+}
+
+function toggle(i){
+  state[active][i].done=!state[active][i].done;
+  renderTasks();
+  updateBadges();
+}
+
+function addTask(){
+  const inp=document.getElementById('new-task');
+  const v=inp.value.trim();
+  if(!v||!active)return;
+  state[active].push({label:v,done:false});
+  inp.value='';
+  renderTasks();updateBadges();
+}
+
+document.getElementById('new-task').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+function updateAll(){
+  let total=0,done=0;
+  Object.values(state).forEach(tasks=>{total+=tasks.length;done+=tasks.filter(t=>t.done).length;});
+  const pct=total===0?0:Math.round(done/total*100);
+  document.getElementById('gbar').style.width=pct+'%';
+  document.getElementById('gpct').textContent=pct+'%';
+  document.getElementById('gsub').textContent=done+' de '+total+' tareas completadas';
+}
+
+function updateBadges(){
+  Object.keys(state).forEach(r=>{
+    const tasks=state[r];
+    const done=tasks.filter(t=>t.done).length;
+    const total=tasks.length;
+    const pct=total===0?0:Math.round(done/total*100);
+    const sub=document.getElementById('sub-'+r);
+    const rbar=document.getElementById('rbar-'+r);
+    const card=document.querySelector('[data-room="'+r+'"]');
+    if(sub)sub.textContent=done+'/'+total+' tareas';
+    if(rbar)rbar.style.width=pct+'%';
+    if(card){
+      card.classList.toggle('done',total>0&&done===total);
+      let badge=card.querySelector('.badge-done');
+      if(total>0&&done===total){
+        if(!badge){badge=document.createElement('div');badge.className='badge-done';badge.textContent='✓ Listo';card.appendChild(badge);}
+      } else {
+        if(badge)badge.remove();
+      }
+    }
+  });
+  updateAll();
+}
+
+updateBadges();
+</script>
+</body>
+</html>
