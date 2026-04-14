@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f4f3;color:#1a2e2a;min-height:100vh;padding:1.25rem}
+h1{font-size:22px;font-weight:700;color:#0d2b24;margin-bottom:4px;text-align:center;font-family:'Inter',system-ui,sans-serif}
+.subtitle{font-size:13px;color:#6b8c85;margin-bottom:1.25rem;text-align:center;font-family:'Inter',system-ui,sans-serif}
+.section-title{font-size:12px;font-weight:600;color:#6b8c85;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-family:'Inter',system-ui,sans-serif}
+.header-icon{font-size:36px;display:block;text-align:center;margin-bottom:6px}
+.global-card{background:#fff;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.25rem;border:1px solid #ddeae6}
+.global-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.global-label{font-size:13px;font-weight:600;color:#0d2b24}
+.global-pct{font-size:13px;font-weight:700;color:#E8671A}
+.bar-track{background:#e4eeeb;border-radius:99px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#E8671A,#f0954d);transition:width 0.4s ease}
+.global-sub{font-size:12px;color:#6b8c85;margin-top:6px}
+.section-title{font-size:12px;font-weight:600;color:#6b8c85;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.rooms-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+@media(max-width:420px){
+  .rooms-list{grid-template-columns:1fr}
+  .room-right{display:none}
+  .room-name{font-size:13px}
+  .room-head{gap:8px;padding:10px}
+  .room-icon{width:30px;height:30px;font-size:15px}
+}
+.reset-btn{display:block;width:100%;margin-top:1.25rem;padding:12px;border:1.5px solid #E8671A;border-radius:12px;background:#fff;color:#E8671A;font-size:14px;font-weight:600;font-family:'Inter',system-ui,sans-serif;cursor:pointer;transition:all 0.2s}
+.reset-btn:hover{background:#E8671A;color:#fff}
+
+/* Room card accordion */
+.room-card{background:#fff;border:1.5px solid #ddeae6;border-radius:14px;overflow:hidden;transition:border-color 0.2s}
+.room-card.active{border-color:#E8671A;box-shadow:0 0 0 3px rgba(232,103,26,0.12)}
+.room-card.done{border-color:#27ae80}
+.room-head{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;user-select:none}
+.room-icon{width:36px;height:36px;border-radius:10px;background:#e4eeeb;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.room-info{flex:1;min-width:0}
+.room-name{font-size:13px;font-weight:600;color:#0d2b24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room-sub{font-size:11px;color:#6b8c85;margin-top:1px}
+.room-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.room-pct{font-size:12px;font-weight:700;color:#E8671A}
+.mini-bar-track{width:64px;background:#e4eeeb;border-radius:99px;height:5px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:99px;background:#1D6B52;transition:width 0.4s ease}
+.chevron{font-size:11px;color:#9bb8b0;transition:transform 0.25s;margin-left:8px}
+
+/* Body */
+.room-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease}
+.room-body.open{max-height:1000px}
+.room-body-inner{padding:0 14px 14px}
+.task-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f4f3}
+.task-row:last-child{border-bottom:none}
+.task-row input[type=checkbox]{width:17px;height:17px;accent-color:#1D6B52;cursor:pointer;flex-shrink:0}
+.task-label{font-size:14px;color:#1a2e2a;cursor:pointer;flex:1}
+.task-label.done{text-decoration:line-through;color:#9bb8b0}
+.add-task{display:flex;gap:8px;margin-top:10px}
+.add-task input{flex:1;font-size:13px;padding:7px 11px;border:1.5px solid #ddeae6;border-radius:10px;outline:none;background:#f8fbfa;color:#1a2e2a}
+.add-task input:focus{border-color:#1D6B52}
+.add-task button{font-size:13px;font-weight:600;padding:7px 14px;border:none;border-radius:10px;background:#E8671A;color:#fff;cursor:pointer}
+.add-task button:hover{background:#cf5a14}
+.empty{font-size:13px;color:#9bb8b0;padding:8px 0;text-align:center}
+.badge-done{display:inline-block;background:#1D6B52;color:#fff;font-size:10px;font-weight:600;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<span class="header-icon">🏠</span>
+<h1>Tareas de orden y limpieza</h1>
+<p class="subtitle">Progreso de limpieza y orden</p>
+
+<div class="global-card">
+  <div class="global-top">
+    <span class="global-label">Progreso general</span>
+    <span class="global-pct" id="gpct">0%</span>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="gbar" style="width:0%"></div></div>
+  <p class="global-sub" id="gsub">0 de 0 tareas completadas</p>
+</div>
+
+<p class="section-title">Ambientes</p>
+<div class="rooms-list" id="rooms-list"></div>
+<button class="reset-btn" onclick="resetAll()">↺ Resetear todo el progreso</button>
+
+<script>
+const rooms=[
+  {id:"sala",      name:"Sala",         icon:"🛋", tasks:["Ordenar cojines","Limpiar mesa de centro","Barrer el piso","Quitar polvo de estantes"]},
+  {id:"escritorio",name:"Escritorio",   icon:"💻", tasks:["Organizar cables","Limpiar monitor","Ordenar papeles","Vaciar papelera"]},
+  {id:"cocina",    name:"Cocina",       icon:"🍳", tasks:["Lavar platos","Limpiar mesada","Ordenar alacena","Limpiar cocina"]},
+  {id:"lavanderia",name:"Lavandería",   icon:"🧺", tasks:["Lavar ropa","Tender ropa","Doblar y guardar","Limpiar lavadora"]},
+  {id:"dormitorio",name:"Dormitorio",   icon:"🛏", tasks:["Tender cama","Ordenar ropa","Limpiar piso","Limpiar muebles"]},
+  {id:"taller",    name:"Taller",       icon:"🔧", tasks:["Ordenar herramientas","Limpiar mesada","Barrer piso","Organizar estantes"]},
+  {id:"bano",      name:"Baño",         icon:"🚽", tasks:["Limpiar inodoro","Limpiar lavamanos","Cambiar toallas","Reponer papel"]},
+  {id:"bano-ducha",name:"Baño y ducha", icon:"🛁", tasks:["Limpiar ducha","Limpiar inodoro","Limpiar lavamanos","Reponer papel"]}
+];
+
+let state={};
+const saved=localStorage.getItem('casa-state');
+if(saved){
+  try{state=JSON.parse(saved);}catch(e){state={};}
+}
+rooms.forEach(r=>{
+  if(!state[r.id]) state[r.id]=r.tasks.map(t=>({label:t,done:false}));
+});
+
+const list=document.getElementById('rooms-list');
+
+rooms.forEach(r=>{
+  const card=document.createElement('div');
+  card.className='room-card';
+  card.id='card-'+r.id;
+  card.innerHTML=`
+    <div class="room-head" onclick="toggle('${r.id}')">
+      <div class="room-icon">${r.icon}</div>
+      <div class="room-info">
+        <div class="room-name" id="rname-${r.id}">${r.name}</div>
+        <div class="room-sub" id="rsub-${r.id}">0/0 tareas</div>
+      </div>
+      <div class="room-right">
+        <span class="room-pct" id="rpct-${r.id}">0%</span>
+        <div class="mini-bar-track"><div class="mini-bar-fill" id="rbar-${r.id}" style="width:0%"></div></div>
+      </div>
+      <span class="chevron" id="chev-${r.id}">▼</span>
+    </div>
+    <div class="room-body" id="body-${r.id}">
+      <div class="room-body-inner">
+        <div id="tasks-${r.id}"></div>
+        <div class="add-task">
+          <input type="text" id="inp-${r.id}" placeholder="Nueva tarea..." onkeydown="if(event.key==='Enter')addTask('${r.id}')"/>
+          <button onclick="addTask('${r.id}')">+ Agregar</button>
+        </div>
+      </div>
+    </div>`;
+  list.appendChild(card);
+  renderTasks(r.id, false);
+});
+
+updateBadges();
+
+function toggle(id){
+  const body=document.getElementById('body-'+id);
+  const isOpen=body.classList.contains('open');
+  document.querySelectorAll('.room-body').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.chevron').forEach(c=>c.style.transform='');
+  document.querySelectorAll('.room-card').forEach(c=>c.classList.remove('active'));
+  if(!isOpen){
+    document.getElementById('body-'+id).classList.add('open');
+    document.getElementById('chev-'+id).style.transform='rotate(180deg)';
+    document.getElementById('card-'+id).classList.add('active');
+  }
+}
+
+function resetAll(){
+  if(!confirm('¿Seguro que quieres resetear todo el progreso?'))return;
+  rooms.forEach(r=>{state[r.id]=r.tasks.map(t=>({label:t,done:false}));renderTasks(r.id,false);});
+  save();
+  updateBadges();
+}
+
+function renderTasks(id, refresh=true){
+  const tasks=state[id];
+  const el=document.getElementById('tasks-'+id);
+  if(!tasks.length){el.innerHTML='<p class="empty">Sin tareas.</p>';if(refresh)updateBadges();return;}
+  el.innerHTML=tasks.map((t,i)=>`<div class="task-row"><input type="checkbox" id="${id}t${i}" ${t.done?'checked':''} onchange="check('${id}',${i})"><label class="task-label${t.done?' done':''}" for="${id}t${i}">${t.label}</label></div>`).join('');
+  if(refresh)updateBadges();
+}
+
+function check(id,i){state[id][i].done=!state[id][i].done;renderTasks(id);}
+
+function addTask(id){
+  const inp=document.getElementById('inp-'+id);
+  const v=inp.value.trim();
+  if(!v)return;
+  state[id].push({label:v,done:false});
+  inp.value='';
+  save();
+  renderTasks(id);
+}
+
+function updateBadges(){
+  let gtotal=0,gdone=0;
+  rooms.forEach(r=>{
+    const tasks=state[r.id];
+    const done=tasks.filter(t=>t.done).length;
+    const total=tasks.length;
+    const pct=total===0?0:Math.round(done/total*100);
+    gtotal+=total;gdone+=done;
+    document.getElementById('rsub-'+r.id).textContent=done+'/'+total+' tareas';
+    document.getElementById('rpct-'+r.id).textContent=pct+'%';
+    document.getElementById('rbar-'+r.id).style.width=pct+'%';
+    const card=document.getElementById('card-'+r.id);
+    card.classList.toggle('done',total>0&&done===total);
+    const nameEl=document.getElementById('rname-'+r.id);
+    let badge=nameEl.querySelector('.badge-done');
+    if(total>0&&done===total){
+      if(!badge){badge=document.createElement('span');badge.className='badge-done';badge.textContent='✓ Listo';nameEl.appendChild(badge);}
+    } else {if(badge)badge.remove();}
+  });
+  const gpct=gtotal===0?0:Math.round(gdone/gtotal*100);
+  document.getElementById('gbar').style.width=gpct+'%';
+  document.getElementById('gpct').textContent=gpct+'%';
+  document.getElementById('gsub').textContent=gdone+' de '+gtotal+' tareas completadas';
+}
+
+updateBadges();
+</script>
+</body>
+</html>
